@@ -1,10 +1,10 @@
-import { SignUpview } from "@/auth/ui/views/sign-up-view";
+import { SignUpView } from "@/auth/ui/views/sign-up-view";
 
 
 
 const Page = () =>{
     
-    return <SignUpview/>
+    return <SignUpView/>
         
 }
 

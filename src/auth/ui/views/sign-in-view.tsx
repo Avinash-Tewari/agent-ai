@@ -31,6 +31,7 @@ const formSchema = z.object({
 export const SignInview = () => { 
     const router=useRouter();
     const [ error , setError ]= useState<string | null>(null);
+    const [ pending,setPending] =useState(false);
 
     const form =useForm<z.infer<typeof formSchema>>({
         resolver:zodResolver(formSchema),
@@ -42,6 +43,7 @@ export const SignInview = () => {
 
     const onSubmit= (data : z.infer <typeof formSchema>) => {
         setError(null);
+        setPending(true);
 
         authClient.signIn.email(
             {
@@ -50,6 +52,7 @@ export const SignInview = () => {
             },
             {
                 onSuccess : () =>{
+                    setPending(false);
                     router.push("/")
                 },
                 onError: ({error}) =>{
@@ -57,6 +60,7 @@ export const SignInview = () => {
                 }
             }
         );
+        
     }
     
     return (
@@ -116,11 +120,13 @@ export const SignInview = () => {
                                     </Alert>
                                     )}
                                     <Button
+                                        disabled={pending}
                                         type="submit"
                                         className="w-full"
                                     >
                                         Sign In
                                     </Button>
+                                        disable
                                     <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                                     <span className="bg-card text0muted-foreground relative z-10 px-2">
                                         or continue with
@@ -128,6 +134,7 @@ export const SignInview = () => {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <Button
+                                            disabled={pending} 
                                             variant="outline"
                                             type="button"
                                             className="w-full" 
