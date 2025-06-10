@@ -4,12 +4,13 @@ import {z} from "zod";
 import { useForm } from "react-hook-form";
 import {useState} from "react";
 import Link from"next/link";
-import { useRouter } from "next/navigation";
 import { OctagonAlert, OctagonAlertIcon } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation" ;
 
 import { Input } from "@/components/ui/input";
 import { Button } from '@/components/ui/button';
+import { FaGithub ,FaGoogle } from "react-icons/fa";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 
@@ -22,6 +23,7 @@ import{
     FormMessage,
 } from "@/components/ui/form";
 import { authClient } from "@/lib/auth-client";
+import { useDynamicRouteParams } from "next/dist/server/app-render/dynamic-rendering";
 
 const formSchema = z.object({
     email: z.string().email(),
@@ -29,7 +31,7 @@ const formSchema = z.object({
 });
 
 export const SignInview = () => { 
-    const router=useRouter();
+    const router = useRouter();
     const [ error , setError ]= useState<string | null>(null);
     const [ pending,setPending] =useState(false);
 
@@ -49,11 +51,12 @@ export const SignInview = () => {
             {
                 email:data.email,
                 password:data.password,
+                callbackURL: "/"
             },
             {
                 onSuccess : () =>{
                     setPending(false);
-                    router.push("/")
+                    router.push("/");
                 },
                 onError: ({error}) =>{
                     setError(error.message )
@@ -61,7 +64,29 @@ export const SignInview = () => {
             }
         );
         
-    }
+    };
+
+    const onSocial = (provider: "github" | "google") => {
+    setError(null);
+    setPending(true);
+
+    authClient.signIn.social(
+      {
+        provider : provider,
+        callbackURL: "/"
+      },
+      {
+        onSuccess: () => {
+          setPending(false);
+          
+        },
+        onError: ({ error }) => {
+          setPending(false);
+          setError(error.message);
+        },
+      }
+    );
+  };
     
     return (
         <div className="flex flex-col gap-6">
@@ -126,7 +151,6 @@ export const SignInview = () => {
                                     >
                                         Sign In
                                     </Button>
-                                        disable
                                     <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                                     <span className="bg-card text0muted-foreground relative z-10 px-2">
                                         or continue with
@@ -135,18 +159,22 @@ export const SignInview = () => {
                                     <div className="grid grid-cols-2 gap-4">
                                         <Button
                                             disabled={pending} 
+                                            onClick={ () => onSocial("google")} 
                                             variant="outline"
                                             type="button"
                                             className="w-full" 
                                         >
-                                            Google
+                                            <FaGoogle/>
                                         </Button>
                                         <Button
+                                        disabled={pending}
+                                        onClick={() => onSocial("github")} 
+                                                
                                             variant="outline"
                                             type="button"
                                             className="w-full" 
                                         >
-                                            Github
+                                            <FaGithub/>
                                         </Button>
                                     </div>
                                     <div className="text-center text-sm">
